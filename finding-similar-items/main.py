@@ -51,7 +51,7 @@ def find_topk_jaccard_ratings(target_mid, k=20):
 
 def find_topk_cosine_ratings(target_mid, k=20):
     # TODO need integrity check for target_mid, k
-    global user_ratings, movies
+    global user_ratings
     target_ratings = user_ratings[target_mid]
     res = []
 
@@ -81,6 +81,7 @@ if __name__ == "__main__":
         for uid, mid, rating, timestamp in csv_reader:
             ratings.append((int(uid), int(mid), float(rating)))
 
+    print(movies[104841])
     # 장르가 유사한 영화 찾기
     mid = 104841 # Gravity (2013)
     print("target:", movies[mid])
@@ -95,11 +96,11 @@ if __name__ == "__main__":
     print("target:", movies[mid])
     res = find_topk_jaccard_ratings(mid, 20)
     for score, title in res:
-        print(f"%.02d{score * 100:.02f}% | {title}")
+        print(f"{score * 100:.02f}% | {title}")
 
     # 비슷한 평가를 받는 영화 찾기
     for uid, mid, rating in ratings:
-        user_ratings[uid][mid] = rating
+        user_ratings[mid][uid] = rating
     
     # 점수 보정 (Pearson Correlation Coefficient)
     for mid, urset in user_ratings.items():
@@ -110,4 +111,4 @@ if __name__ == "__main__":
     print("target:", movies[mid])
     res = find_topk_cosine_ratings(mid, 20)
     for score, title in res:
-        print(f"{score:.02f} | {title}")
+        print(f"{score * 100:.02f}% | {title}")
