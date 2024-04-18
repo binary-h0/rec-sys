@@ -65,7 +65,7 @@ def find_topk_cosine_ratings(target_mid, k=20):
 
 
 if __name__ == "__main__":
-    with open("ml-25m/movies.csv") as f:
+    with open("../data/ml-25m/movies.csv") as f:
         csv_reader = csv.reader(f)
         next(csv_reader) # skip header
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             genres[mid] = set(genre.split("|"))
 
     
-    with open("ml-25m/ratings.csv", "r") as f:
+    with open("../data/ml-25m/ratings.csv", "r") as f:
         csv_reader = csv.reader(f)
         next(csv_reader)
         for uid, mid, rating, timestamp in csv_reader:
