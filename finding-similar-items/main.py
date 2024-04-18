@@ -6,6 +6,7 @@ movies = dict()
 genres = dict()
 ratings = []
 watch_users = defaultdict(set)
+user_ratings = defaultdict(dict)
 
 def jaccard_similarity(set1, set2):
     intersection = set1 & set2
@@ -13,6 +14,12 @@ def jaccard_similarity(set1, set2):
     if len(union) == 0: return 0
 
     return len(intersection) / len(union)
+
+def cosine_similarity(vec1, vec2):
+    numerator = sum(vec1[k] * vec2[k] for k in vec1.keys() & vec2.keys())
+    denominator = (sum(v ** 2 for v in vec1.values()) * sum(v ** 2 for v in vec2.values())) ** 0.5
+    if denominator == 0: return 0
+    return numerator / denominator
 
 def find_topk_jaccard_genres(target_mid, k=20):
     # TODO need integrity check for target_mid, k
@@ -38,6 +45,20 @@ def find_topk_jaccard_ratings(target_mid, k=20):
         if mid == target_mid: continue
         jaccard_score = jaccard_similarity(target_watch_users, uset)
         res.append( (jaccard_score, movies[mid]) )
+    
+    res.sort(reverse=True)
+    return res[:k]
+
+def find_topk_cosine_ratings(target_mid, k=20):
+    # TODO need integrity check for target_mid, k
+    global user_ratings
+    target_ratings = user_ratings[target_mid]
+    res = []
+
+    for mid, urset in tqdm(user_ratings.items()):
+        if mid == target_mid: continue
+        cosine_score = cosine_similarity(target_ratings, urset)
+        res.append( (cosine_score, movies[mid]) )
     
     res.sort(reverse=True)
     return res[:k]
@@ -75,3 +96,18 @@ if __name__ == "__main__":
     res = find_topk_jaccard_ratings(mid, 20)
     for score, title in res:
         print(f"%.02d{score * 100:.02f}% | {title}")
+
+    # 비슷한 평가를 받는 영화 찾기
+    for uid, mid, rating in ratings:
+        user_ratings[uid][mid] = rating
+    
+    # 점수 보정 (Pearson Correlation Coefficient)
+    for mid, urset in user_ratings.items():
+        avg_rating = sum(urset.values()) / len(urset)
+        for uid in urset:
+            urset[uid] -= avg_rating
+    mid = 104841 # Gravity (2013)
+    print("target:", movies[mid])
+    res = find_topk_cosine_ratings(mid, 20)
+    for score, title in res:
+        print(f"{score:.02f} | {title}")
