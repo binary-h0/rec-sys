@@ -51,7 +51,7 @@ def find_topk_jaccard_ratings(target_mid, k=20):
 
 def find_topk_cosine_ratings(target_mid, k=20):
     # TODO need integrity check for target_mid, k
-    global user_ratings
+    global user_ratings, movies
     target_ratings = user_ratings[target_mid]
     res = []
 
